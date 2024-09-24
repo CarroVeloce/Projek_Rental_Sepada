@@ -6,13 +6,17 @@ import matplotlib.pyplot as plt
 # Load dataset with updated caching mechanism
 @st.cache_data
 def load_data():
-    df = pd.read_csv('data\day.csv') 
+    df = pd.read_csv('dashboard/day.csv') 
     return df
 
 df = load_data()
 
 # Dashboard Title
 st.title('Dashboard Analisis Penyewaan Sepeda')
+st.markdown("""
+    Dashboard ini memberikan visualisasi data penyewaan sepeda berdasarkan berbagai faktor seperti kondisi cuaca, musim, dan suhu terasa. 
+    Anda dapat menggunakan filter di sidebar untuk menganalisis tren penyewaan sepeda berdasarkan kriteria tertentu.
+""")
 
 # Sidebar filters
 st.sidebar.header('Filter Data')
@@ -26,20 +30,24 @@ weather_labels = {
 
 # Define season labels
 season_labels = {
-    1: 'Musim Dingin 1',
-    2: 'Musim Semi 2',
-    3: 'Musim Panas 3',
-    4: 'Musim Gugur 4',
+    1: 'Musim Dingin',
+    2: 'Musim Semi',
+    3: 'Musim Panas',
+    4: 'Musim Gugur',
 }
 
 # Filter based on weather condition
+st.sidebar.subheader("Filter Berdasarkan Kondisi Cuaca")
 weather_options = df['weathersit'].unique()
-selected_weather = st.sidebar.multiselect('Pilih Kondisi Cuaca:', [weather_labels[i] for i in weather_options], 
+selected_weather = st.sidebar.multiselect('Pilih Kondisi Cuaca:', 
+                                           [weather_labels[i] for i in weather_options], 
                                            default=[weather_labels[i] for i in weather_options])
 
 # Filter based on season
+st.sidebar.subheader("Filter Berdasarkan Musim")
 season_options = df['season'].unique()
-selected_season = st.sidebar.multiselect('Pilih Musim:', [season_labels[i] for i in season_options], 
+selected_season = st.sidebar.multiselect('Pilih Musim:', 
+                                          [season_labels[i] for i in season_options], 
                                           default=[season_labels[i] for i in season_options])
 
 # Mapping selected weather and season back to original values
@@ -50,7 +58,7 @@ selected_season_values = [key for key, value in season_labels.items() if value i
 filtered_df = df[(df['weathersit'].isin(selected_weather_values)) & (df['season'].isin(selected_season_values))]
 
 # Display dataset
-st.subheader('Data Penyewaan Sepeda')
+st.subheader('Data Penyewaan Sepeda (Terfilter)')
 st.write(filtered_df)
 
 # Analysis 1: Weather condition impact on bike rentals
@@ -71,7 +79,12 @@ ax.set_ylabel('Rata-rata Jumlah Penyewaan Sepeda', fontsize=12)
 ax.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
 st.pyplot(fig)
 
+st.markdown("""
+    **Interpretasi**: Rata-rata penyewaan sepeda lebih tinggi pada kondisi cuaca cerah dibandingkan saat hujan atau salju. Ini menunjukkan bahwa cuaca yang lebih baik memiliki korelasi dengan peningkatan penggunaan sepeda.
+""")
+
 # Scatter plot between atemp and cnt
+st.subheader('Hubungan Suhu Terasa dengan Jumlah Penyewaan Sepeda')
 fig, ax = plt.subplots(figsize=(8, 5))
 scatter = sns.scatterplot(x=filtered_df['atemp'], y=filtered_df['cnt'], hue=filtered_df['season'], palette='deep', ax=ax)
 
@@ -88,6 +101,9 @@ ax.grid(True, linestyle='--', alpha=0.7)
 
 st.pyplot(fig)
 
+st.markdown("""
+    **Interpretasi**: Plot ini menunjukkan hubungan antara suhu terasa (atemp) dan jumlah penyewaan sepeda. Titik-titik diwarnai berdasarkan musim, memberikan gambaran yang lebih jelas tentang bagaimana musim juga memengaruhi penyewaan.
+""")
 
 # Automated Conclusion
 st.subheader('Kesimpulan')
@@ -112,12 +128,25 @@ def generate_conclusions(df):
     else:
         conclusions.append(f"Suhu terasa (atemp) memiliki korelasi negatif dengan penyewaan sepeda. Korelasi: {correlation_atemp_cnt:.2f}.")
 
+    # Conclusion 3: Impact of season on rentals
+    season_rental_mean = df.groupby('season')['cnt'].mean()
+    if season_rental_mean.idxmax() == 3:
+        conclusions.append("Penyewaan sepeda tertinggi terjadi pada musim panas.")
+    elif season_rental_mean.idxmax() == 2:
+        conclusions.append("Penyewaan sepeda tertinggi terjadi pada musim semi.")
+    else:
+        conclusions.append(f"Penyewaan sepeda tertinggi terjadi pada musim {season_labels[season_rental_mean.idxmax()]}.")
+    
     return conclusions
 
 # Generate and display conclusions
 conclusions = generate_conclusions(filtered_df)
 for conclusion in conclusions:
     st.write(f"- {conclusion}")
+
+st.markdown("""
+    **Analisis Lanjutan**: Dengan menggunakan hasil dari dashboard ini, Anda dapat melihat bagaimana cuaca, musim, dan suhu terasa mempengaruhi jumlah penyewaan sepeda. Informasi ini berguna bagi bisnis penyewaan sepeda atau perencanaan transportasi kota.
+""")
 
 # Footer
 st.sidebar.text('Dashboard by Arjuna')

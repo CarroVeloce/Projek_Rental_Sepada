@@ -1,0 +1,123 @@
+import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load dataset with updated caching mechanism
+@st.cache_data
+def load_data():
+    df = pd.read_csv('D:\POLITEKNIK NEGERI JAKARTA\PITON PROJEK\Belajar analisis data\Projek_Rental_Sepda\dashboard\day.csv') 
+    return df
+
+df = load_data()
+
+# Dashboard Title
+st.title('Dashboard Analisis Penyewaan Sepeda')
+
+# Sidebar filters
+st.sidebar.header('Filter Data')
+
+# Define weather condition labels
+weather_labels = {
+    1: 'Cerah',
+    2: 'Mendung',
+    3: 'Hujan Ringan/Snow',
+}
+
+# Define season labels
+season_labels = {
+    1: 'Musim Dingin 1',
+    2: 'Musim Semi 2',
+    3: 'Musim Panas 3',
+    4: 'Musim Gugur 4',
+}
+
+# Filter based on weather condition
+weather_options = df['weathersit'].unique()
+selected_weather = st.sidebar.multiselect('Pilih Kondisi Cuaca:', [weather_labels[i] for i in weather_options], 
+                                           default=[weather_labels[i] for i in weather_options])
+
+# Filter based on season
+season_options = df['season'].unique()
+selected_season = st.sidebar.multiselect('Pilih Musim:', [season_labels[i] for i in season_options], 
+                                          default=[season_labels[i] for i in season_options])
+
+# Mapping selected weather and season back to original values
+selected_weather_values = [key for key, value in weather_labels.items() if value in selected_weather]
+selected_season_values = [key for key, value in season_labels.items() if value in selected_season]
+
+# Filter data based on user selections
+filtered_df = df[(df['weathersit'].isin(selected_weather_values)) & (df['season'].isin(selected_season_values))]
+
+# Display dataset
+st.subheader('Data Penyewaan Sepeda')
+st.write(filtered_df)
+
+# Analysis 1: Weather condition impact on bike rentals
+st.subheader('Pengaruh Kondisi Cuaca Terhadap Penyewaan Sepeda')
+weather_rental_mean = filtered_df.groupby('weathersit')['cnt'].mean()
+
+# Barplot for weather condition
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.barplot(x=[weather_labels[i] for i in weather_rental_mean.index], y=weather_rental_mean.values, palette='coolwarm', ax=ax)
+
+# Add data labels
+for i, v in enumerate(weather_rental_mean.values):
+    ax.text(i, v + 0.5, f"{v:.2f}", ha='center', fontsize=10, color='black')
+
+ax.set_title('Rata-rata Penyewaan Sepeda Berdasarkan Kondisi Cuaca', fontsize=14)
+ax.set_xlabel('Kondisi Cuaca', fontsize=12)
+ax.set_ylabel('Rata-rata Jumlah Penyewaan Sepeda', fontsize=12)
+ax.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
+st.pyplot(fig)
+
+# Scatter plot between atemp and cnt
+fig, ax = plt.subplots(figsize=(8, 5))
+scatter = sns.scatterplot(x=filtered_df['atemp'], y=filtered_df['cnt'], hue=filtered_df['season'], palette='deep', ax=ax)
+
+# Add title and labels
+ax.set_title('Hubungan Suhu Terasa dengan Jumlah Penyewaan Sepeda', fontsize=14)
+ax.set_xlabel('Suhu Terasa (atemp)', fontsize=12)
+ax.set_ylabel('Jumlah Penyewaan Sepeda', fontsize=12)
+
+# Add a legend outside the plot
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Musim')
+
+# Add grid for better readability
+ax.grid(True, linestyle='--', alpha=0.7)
+
+st.pyplot(fig)
+
+
+# Automated Conclusion
+st.subheader('Kesimpulan')
+
+# Generate conclusions based on trends in the data
+def generate_conclusions(df):
+    conclusions = []
+
+    # Conclusion 1: Impact of weather on rentals
+    weather_rental_mean = df.groupby('weathersit')['cnt'].mean()
+    if weather_rental_mean.idxmax() == 1:
+        conclusions.append("Jumlah penyewaan sepeda tertinggi terjadi saat cuaca cerah.")
+    elif weather_rental_mean.idxmax() == 2:
+        conclusions.append("Jumlah penyewaan sepeda tertinggi terjadi saat cuaca mendung atau berawan.")
+    else:
+        conclusions.append("Jumlah penyewaan sepeda tertinggi terjadi saat cuaca hujan ringan atau salju.")
+
+    # Conclusion 2: Impact of feeling temperature (atemp) on rentals
+    correlation_atemp_cnt = df['atemp'].corr(df['cnt'])
+    if correlation_atemp_cnt > 0:
+        conclusions.append(f"Suhu terasa (atemp) memiliki korelasi positif dengan penyewaan sepeda. Korelasi: {correlation_atemp_cnt:.2f}.")
+    else:
+        conclusions.append(f"Suhu terasa (atemp) memiliki korelasi negatif dengan penyewaan sepeda. Korelasi: {correlation_atemp_cnt:.2f}.")
+
+    return conclusions
+
+# Generate and display conclusions
+conclusions = generate_conclusions(filtered_df)
+for conclusion in conclusions:
+    st.write(f"- {conclusion}")
+
+# Footer
+st.sidebar.text('Dashboard by Arjuna')

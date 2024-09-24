@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # Load dataset with updated caching mechanism
 @st.cache_data
 def load_data():
-    df = pd.read_csv('data\day.csv') 
+    df = pd.read_csv('dashboard/day.csv') 
     return df
 
 df = load_data()

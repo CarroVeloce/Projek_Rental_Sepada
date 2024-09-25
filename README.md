@@ -18,3 +18,9 @@ pip install numpy pandas scipy matplotlib seaborn jupyter streamlit babel
 streamlit run dashboard_bike_sharing.py
 
 ```
+#Demo App Streamlit 
+
+```
+[streamlit run dashboard_bike_sharing.py](https://projekrentalsepada-itqyki9drri8imfhshrxvh.streamlit.app/)
+
+```

@@ -20,7 +20,5 @@ streamlit run dashboard_bike_sharing.py
 ```
 #Demo App Streamlit 
 
-```
-[streamlit run dashboard_bike_sharing.py](https://projekrentalsepada-itqyki9drri8imfhshrxvh.streamlit.app/)
 
-```
+[streamlit run dashboard_bike_sharing.py](https://projekrentalsepada-itqyki9drri8imfhshrxvh.streamlit.app/)

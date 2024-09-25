@@ -18,7 +18,7 @@ st.markdown("""
 """)
 
 with st.sidebar:
-    # Menambahkan logo perusahaan
+    
     st.image("Gambar/sepeda.png")
     
 # Sidebar filters
@@ -29,10 +29,10 @@ weather_labels = {
     3: 'Hujan Ringan/Snow',
 }
 season_labels = {
-    1: 'Musim Dingin',
-    2: 'Musim Semi',
-    3: 'Musim Panas',
-    4: 'Musim Gugur',
+    1: 'Musim Dingin 1',
+    2: 'Musim Semi 2',
+    3: 'Musim Panas 3',
+    4: 'Musim Gugur 4',
 }
 
 
@@ -57,7 +57,7 @@ selected_season_values = [key for key, value in season_labels.items() if value i
 filtered_df = df[(df['weathersit'].isin(selected_weather_values)) & (df['season'].isin(selected_season_values))]
 
 # Display dataset
-st.subheader('Data Penyewaan Sepeda (Terfilter)')
+st.subheader('Data Penyewaan Sepeda')
 st.write(filtered_df)
 st.subheader('Pengaruh Kondisi Cuaca Terhadap Penyewaan Sepeda')
 weather_rental_mean = filtered_df.groupby('weathersit')['cnt'].mean()

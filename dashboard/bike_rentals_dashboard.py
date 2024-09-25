@@ -17,6 +17,10 @@ st.markdown("""
     Anda dapat menggunakan filter di sidebar untuk menganalisis tren penyewaan sepeda berdasarkan kriteria tertentu.
 """)
 
+with st.sidebar:
+    # Menambahkan logo perusahaan
+    st.image("Gambar\pngwing.com (3).png")
+    
 # Sidebar filters
 st.sidebar.header('Filter Data')
 weather_labels = {
@@ -31,6 +35,8 @@ season_labels = {
     4: 'Musim Gugur',
 }
 
+
+    
 # Filter based on weather condition
 st.sidebar.subheader("Filter Berdasarkan Kondisi Cuaca")
 weather_options = df['weathersit'].unique()

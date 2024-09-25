@@ -19,7 +19,7 @@ st.markdown("""
 
 with st.sidebar:
     # Menambahkan logo perusahaan
-    st.image("Gambar/pngwing.com (3).png")
+    st.image("Gambar/sepeda.png")
     
 # Sidebar filters
 st.sidebar.header('Filter Data')
